@@ -1,19 +1,16 @@
-const dotenv = require('dotenv')
-dotenv.config()
-const { MongoStore } = require('wwebjs-mongo');
-const mongoose = require('mongoose');
+import { config } from 'dotenv'
+config()
+import { MongoStore } from 'wwebjs-mongo'
+import mongoose, { connect } from 'mongoose'
 
-// Load the session data
-mongoose.connect(process.env.MONGODB_URI).then(() => {
-    const store = new MongoStore({ mongoose: mongoose });
+connect(process.env.MONGODB_URI).then(() => {
+    const store = new MongoStore({ mongoose: mongoose })
     const client = new Client({
         authStrategy: new RemoteAuth({
             store: store,
             backupSyncIntervalMs: 300000
         })
-    });
-
-    client.initialize();
-});
-console.log('Cok')
+    })
+    client.initialize()
+})
 console.log(process.env.A)
