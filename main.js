@@ -1,25 +1,26 @@
-import { config } from 'dotenv'
+const { config } = require('dotenv')
 config()
-import { MongoStore } from 'wwebjs-mongo'
-import mongoose, { connect } from 'mongoose'
-import * as qrcode from 'qrcode-terminal'
+const { MongoStore } = require('wwebjs-mongo')
+const mongoose = require('mongoose')
+const { Client, RemoteAuth } = require('whatsapp-web.js')
+const events = require('./utils/events')
 
-connect(process.env.MONGODB_URI).then(() => {
+mongoose.connect(process.env.MONGODB_URI).then(() => {
     const store = new MongoStore({ mongoose: mongoose })
     const client = new Client({
         authStrategy: new RemoteAuth({
             store: store,
             backupSyncIntervalMs: 300000
-        })
+        }),
+        puppeteer: {
+            args: ['--no-sandbox'],
+        }
     })
-    client.on('qr', qr => {
-        qrcode.generate(qr, { small: true })
-    })
-    client.on('message', msg => {
-        console.log(JSON.stringify(msg))
-    })
-    client.on('ready', () => {
-        console.log('Client is ready!')
-    })
+    client.on('auth_failure', events.authFailure)
+    client.on('authenticated', events.authenticated)
+    client.on('disconnected', events.disconnected)
+    client.on('qr', events.qr)
+    client.on('message', events.message)
+    client.on('ready', events.ready)
     client.initialize()
 })
