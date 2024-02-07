@@ -1,9 +1,9 @@
 const { fromChat, fromMessage, fromGroupNotification } = require("./types")
+const { readyDone } = require('./wa-ready')
 const qrcode = require('qrcode-terminal')
+const { log } = require('./print')
 
 const authFailure = msg => { log('auth_failure', msg) }
-
-const log = (funcName, msg) => console.log(`[${new Date().toString()} ${funcName}] ${msg}`)
 
 const authenticated = () => log('authenticated', 'authenticated')
 
@@ -30,7 +30,10 @@ const qr = qr => {
     qrcode.generate(qr, { small: true })
 }
 
-const ready = () => log('ready', 'Client is ready!')
+const ready = () => {
+    log('ready', 'Client is ready!')
+    readyDone()
+}
 
 module.exports = {
     authFailure,
